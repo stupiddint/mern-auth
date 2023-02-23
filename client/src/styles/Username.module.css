@@ -1,23 +1,27 @@
 .glass{
-    background: rgba(255, 255, 255, 0.55);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px #4747470b;
-    backdrop-filter: blur(7.1px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    @apply border-4 border-gray-50 shrink-0 h-3/4 w-[30%] rounded-3xl py-20 px-7 min-w-max
+    background: rgba(255, 255, 255, 0.809);
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 2rem whitesmoke;
+    backdrop-filter: blur(3rem);
+    
+    @apply border-4 border-gray-50 shrink-0  w-[30%] rounded-3xl py-2 px-2 min-w-max
 }
 .profileimg{
-    @apply border-4 border-gray-100 w-[134px] rounded-full shadow-lg cursor-pointer;
+    @apply border-4 border-gray-100 w-[134px] h-[134px] rounded-full shadow-lg cursor-pointer;
     @apply hover:border-gray-200
 }
 .textbox{
-    @apply border-0 px-5 py-4 rounded-xl w-3/4 shadow-sm text-lg;
+    @apply border-0 my-1 sm:px-2 px-1 py-2 rounded-xl flex mx-auto shadow-sm text-lg w-[90%] ;
     @apply focus:outline-none;
 }
 .btn{
-    @apply border bg-indigo-500 w-3/4 py-4 rounded-lg text-gray-50 text-xl shadow-sm text-center;
+    @apply border bg-indigo-500 py-2  mt-1 flex mx-auto rounded-lg text-gray-50 text-xl shadow-sm text-center justify-center w-[90%] ;
 
 }
 .btn:hover{
     background-color: #ff6a6a;
+    transition-duration: 100ms;
+}
+input[type='file']{
+    display: none;
 }
