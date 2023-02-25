@@ -1,6 +1,7 @@
 import UserModel from "../model/User.model.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import otpGenerator from 'otp-generator'
 import env from '../config.js'
 
 /** middleware for verify user */
@@ -162,19 +163,64 @@ export async function updateUser(req, res) {
     }
 }
 
+/** GET: ..../api/generateOTP */
 export async function generateOTP(req, res) {
-  res.json("generateOTP router");
+  req.app.locals.OTP = await otpGenerator.generate(6,{lowerCaseAlphabets:false,upperCaseAlphabets:false,specialChars:false})
+  res.status(201).send({code: req.app.locals.OTP})
 }
 
+/** GET: ..../api/verifyOTP */
 export async function verifyOTP(req, res) {
-  res.json("verifyOTP router");
+  const {code} = req.query;
+  if(parseInt(req.app.locals.OTP)=== parseInt(code)){
+    req.app.locals.OTP = null;
+    req.app.locals.resetSession = true; // start session for reset password
+    return res.status(201).send({msg: 'Verify Successfully!'})
+  }
+  return res.status(400).send({error: "Invalid OTP"})
 }
 
+// successfully redirect user when OTP is valid
+/** GET: ..../api/createResetSession */
 export async function createResetSession(req, res) {
-  res.json("createResetSession router");
+  if(req.app.locals.resetSession){
+    req.app.locals.resetSession = false;
+    return res.status(201).send({msg: 'request granted'})
+    // return res.status(201).send({ flag : req.app.locals.resetSession})
+}
+return res.status(440).send({error : "Session expired!"})
 }
 
 /** PUT: ..../api/resetPassword */
 export async function resetPassword(req, res) {
-  res.json("resetPassword router");
+  try {
+    const {username, password} = req.body;
+
+    try {
+      UserModel.findOne({username})
+        .then(user => {
+          bcrypt.hash(password, 10)
+            .then(hashedPassword => {
+              UserModel.updateOne({username: user.username}, {password: hashedPassword},
+                function(err,data){
+                  if(err) throw err;
+                  return res.status(201).send({msg : "Record Updated...!"})
+              })
+            })
+            .catch(err => {
+              return res.status(500).send({
+                error: "Enable to hashed password"
+              })
+            })
+        })
+        .catch(error => {
+          return res.status(404).send({error: "username not found"})
+        })
+    } catch (error) {
+      
+    }
+  } catch (error) {
+    return res.status(401).send({error})
+    
+  }
 }
