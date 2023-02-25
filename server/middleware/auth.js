@@ -10,8 +10,16 @@ export default async function Auth(req, res, next) {
     const decodedToken = await jwt.verify(token, env.JWT_SECRET);
 
     req.user = decodedToken;
-    res.json(decodedToken);
+    next()
   } catch (error) {
     res.status(401).json({ erro: "Authentication failed!" });
   }
+}
+
+export function localVariable(req,res,next){
+  req.app.locals = {
+    OTP : null,
+    resetSession: false,
+  },
+  next()
 }
