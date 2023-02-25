@@ -22,7 +22,6 @@ app.get('/', (req,res)=>{
 app.get('/contact', (req,res)=>{
     res.send('this is contact page')
 })
-
 /** api routes */
 app.use('/api', router);
 
