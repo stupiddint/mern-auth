@@ -4,8 +4,7 @@ import morgan from 'morgan'
 import connect from './database/mongodbConnection.js';
 import router from './router/route.js';
 
-
-const port = process.env.PORT || '3000';
+const port = process.env.PORT || '8080';
 
 /** middlewares */
 const app = express();
