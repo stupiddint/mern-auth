@@ -1,10 +1,20 @@
 import axios from 'axios';
+import jwt_decode from 'jwt-decode'
 
 // backend domain
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN;
 
 /** Make Api request */
 
+/** To get username from Token */
+
+export async function getUsername(){
+    const token = localStorage.getItem('token')
+    if(!token) return Promise.reject("Cannot find Token")
+    let decode = jwt_decode(token);
+    // console.log(decode)
+    return decode;
+}
 
 /** authenticate function */
 export async function authenticate(username){
@@ -33,9 +43,9 @@ export async function registerUser(credentials){
         let { username, email } = credentials;
 
         /** send email */
-        if(status === 201){
-            await axios.post('/api/registerMail', { username, userEmail : email, text : msg})
-        }
+        // if(status === 201){
+        //     await axios.post('/api/registerMail', { username, userEmail : email, text : msg})
+        // }
 
         return Promise.resolve(msg)
     } catch (error) {

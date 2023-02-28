@@ -1,14 +1,16 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import avatar from "../assets/profile.png";
 import styles from "../styles/Username.module.css";
-import { Toaster } from "react-hot-toast";
+import Toast, { toast, Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
 import useFetch from "../hooks/fetch.hook";
 import { passwordValidate } from "../helper/validate";
 import { useAuthStore } from "../store/store.js";
+import { verifyPassword } from "../helper/helper";
 
 function Password() {
+  const navigate = useNavigate();
   const { username } = useAuthStore((state) => state.auth);
   const [{ isLoading, apiData, serverError }] = useFetch(`/user/${username}`);
 
@@ -20,7 +22,18 @@ function Password() {
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async (values) => {
-      console.log(values);
+      // console.log(values);
+      let loginPromise = verifyPassword({username, password: values.password})
+      toast.promise(loginPromise, {
+        loading : 'checking...',
+        success: <b>Login Successfully...!</b>,
+        error: <b>Password did not match</b>
+      })
+      loginPromise.then(res => {
+        let {token} = res.data;
+        localStorage.setItem('token', token);
+        navigate('/profile')
+      })
     },
   });
   if (isLoading) return <h1 className="text-xl font-bold">isLoading...</h1>;

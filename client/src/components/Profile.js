@@ -1,33 +1,44 @@
 import React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import avatar from "../assets/profile.png";
 import styles from "../styles/Username.module.css";
-import { Toaster } from "react-hot-toast";
+import toast,{ Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
 import { profileValidation } from "../helper/validate";
 import converToBase64 from '../helper/convert'
+import useFetch from "../hooks/fetch.hook";
+import { updateUser } from "../helper/helper";
 
 
 
 function Profile() {
-  const [file,  setFile] = useState()
+  const [file,  setFile] = useState();
+  const [{ isLoading, apiData, serverError }] = useFetch();
+  const navigate = useNavigate();
 
   const formik = useFormik({
     initialValues: {
-      firstName: '',
-      lastName: '',
-      email: "dou343@gmail.com",
-      mobile: '',
-      username: "example123",
+      firstName: apiData?.firstName || '',
+      lastName: apiData?.lastName || '',
+      email: apiData?.firstName || "",
+      mobile: apiData?.mobile || '',
+      address: apiData?.firstName || "",
 
     },
+    enableReinitialize: true,
     validate: profileValidation,
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async (values) => {
-      values = await Object.assign(values, {profile: file || ''})
-      console.log(values);
+      values = await Object.assign(values, {profile: file || apiData.profile || ''})
+      // console.log(values);
+     let updatePromise = updateUser(values)
+      toast.promise(updatePromise, {
+        loading: 'Updating...',
+        success: <b>Update Successfully...!</b>,
+        error: <b>Could not update</b>
+      })
     },
   });
 
@@ -36,6 +47,17 @@ function Profile() {
     const base64 = await converToBase64(e.target.files[0]);
     setFile(base64);
   }
+
+  // logout handler function
+  function userLogout(){
+    localStorage.removeItem('token');
+    navigate('/')
+  }
+
+
+  if (isLoading) return <h1 className="text-xl font-bold">isLoading...</h1>;
+  if (serverError)
+    return <h1 className="text-xl text-red-500">{serverError.message}</h1>;
 
 
   return (
@@ -56,7 +78,7 @@ function Profile() {
               <div className="profile flex justify-center py-4">
                 <label htmlFor="profile">
                   <img
-                    src={file || avatar}
+                    src={apiData?.profile || file || avatar}
                     alt="avatar"
                     className={styles.profileimg}
                   />
@@ -110,12 +132,12 @@ function Profile() {
               <div className="text-center py-4">
                 <span className="text-gray-500">
                   come back later?{" "}
-                  <Link
-                    to="/"
+                  <button
+                    onClick={userLogout}
                     className="text-red-500 hover:text-red-600 duration-200 "
                   >
                     Logout
-                  </Link>
+                  </button>
                 </span>
               </div>
             </form>
